@@ -1,0 +1,157 @@
+connection string which you will copy from atlas
+mongodb+srv://test:<password>@cluster0.jdxs1ap.mongodb.net/
+when connection is made
+mongodb+srv://test:12345@cluster0.jdxs1ap.mongodb.net/
+
+first comadns(cd backend, npm init -y, npm install nodemon express mongoose@6.9.1) icchi
+ index.js lo code rasi malli 
+ package.json lo scripts kinda line ni "start":"nodemon index.js" ga marcahli 
+ mongodb atlas lo ki velli project create add data anth ayyaka mongodb connection link tesukoni 
+ adi index.js conneection lo paste chesi just okasari clear kodihe kotha terminal la open avuthundhi a tarvta npm start kottali
+ next express create chesi aa travta controller folder lo oka new file avi anni ichi malla index.js lo modify chyeali
+malli model ane folder create chesi 
+
+---------sir's doc---------
+1. Create a project folder
+2. Inside that create a backend folder
+3. In the terminal move to backend by using the command cd backend
+4. After that, create a package.json file by using the command npm init -y
+5. Create a file called index.js 
+6. Install the necessary modules using the command npm install nodemon express mongoose@6.9.1
+7. Modification in package.json file
+
+8. Start code in index.js
+
+
+const mongoose = require("mongoose");
+const express = require("express");
+const studentRoute = require("./controller/studentRoute");
+
+
+//MongoDB Altas Connection
+mongoose.set("strictQuery",true);
+mongoose.connect("mongodb+srv://test:12345@cluster0.bucpnac.mongodb.net/schooldb");
+var db = mongoose.connection;
+db.on("open",()=>console.log("Connected to DB"));
+db.on("error",()=>console.log("Error occurred"));
+
+
+//Creating a app
+const app = express();
+
+
+//Middleware
+app.use("/students",studentRoute);
+
+
+//Listening to a port number
+app.listen(4000,()=>{
+    console.log("Server started at 4000");
+})
+
+9. Create a folder called controller and inside that create a file as studentRoute
+const express = require("express");
+const studentSchema = require("../model/studentSchema");
+const mongoose = require("mongoose");
+
+
+const studentRoute = express.Router();
+
+
+studentRoute.post("/create-student",(req,res)=>{
+    studentSchema.create(req.body,(err,data)=>{
+        if(err)
+            return err;
+        else
+            res.json(data);
+    })
+})
+
+
+studentRoute.get("/",(req,res)=>{
+    studentSchema.find((err,data)=>{
+        if(err)
+            return err;
+        else
+            res.json(data);
+    })
+})
+studentRoute.route("/update-student/:id")
+.get((req,res)=>{
+    studentSchema.findById(mongoose.Types.ObjectId(req.params.id),(err,data)=>{
+        if(err)
+            return err;
+        else
+            res.json(data);
+    })
+})
+.put((req,res)=>{
+    studentSchema.findByIdAndUpdate(
+        mongoose.Types.ObjectId(req.params.id),
+        {$set: req.body},
+        (err,data)=>{
+            if(err)
+                return err;
+            else
+                res.json(data);
+        })
+})
+
+
+
+
+studentRoute.delete("/delete-student/:id",(req,res)=>{
+    studentSchema.findByIdAndRemove(mongoose.Types.ObjectId(req.params.id),(err,data)=>{
+        if(err)
+            return err;
+        else
+            res.json(data);
+    })
+})
+
+
+module.exports = studentRoute;
+
+
+//http://localhost:4000/students -> GET
+//http://localhost:4000/students/create-student + if request type is post ->
+
+
+//Axios.post(url,obj)
+//Axios.post(http://localhost:4000/students/create-student, obj)
+
+
+//req or res //req -> Request line, Request header, Request body
+
+
+//Axios.delete(http://localhost:4000/students/delete-student/507f1f77bcf86cd799439011)
+/*
+
+
+_id: 507f1f77bcf86cd799439011
+name: Rekha
+email:rekha@gmail.com
+rollNo: 12
+
+
+*/
+
+
+
+10. Create a model folder inside that create a file called studentSchema
+
+
+const mongoose = require("mongoose");
+const studentSchema = new mongoose.Schema({
+    "name":{type:String},
+    "email":{type:String},
+    "rollNo":{type:Number}
+},
+{
+    collection: "students"
+});
+
+
+module.exports = mongoose.model("studentSchema",studentSchema);
+
+11. To run the application enter the command as npm start
